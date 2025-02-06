@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Btrfs Scrub Status</title>
+    <meta charset="utf-8">
+    <script src="../base1/cockpit.js"></script>
+    <link rel="stylesheet" href="../system/overview.css">
+</head>
+<body class="pf-v5-m-tabular-nums">
+    <div class="ct-page-fill" id="overview">
+        <div class="pf-v5-c-page">
+            <main class="pf-v5-c-page__main" tabindex="-1">
+                <section class="pf-v5-c-page__main-section pf-m-no-padding pf-m-light"></section>
+                <section class="pf-v5-c-page__main-section pf-m-padding pf-m-light ct-overview-header">
+                    <div class="ct-overview-header-hostname">
+                        <h1>Btrfs Scrub Status</h1>
+                    </div>
+                </section>
+                <section class="pf-v5-c-page__main-section">
+                    <div class="pf-v5-l-gallery pf-m-gutter ct-system-overview">
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__title">
+                                <div class="pf-v5-c-card__title-text">Scrub Status</div>
+                            </div>
+                            <div class="pf-v5-c-card__body">
+                                <pre id="scrub-output">Fetching status...</pre>
+                                <progress id="scrub-progress" value="0" max="100"></progress>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <script src="btrfs-scrub.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+    "version": 0,
+    "tools": {
+        "btrfs-scrub": {
+            "label": "Btrfs Scrub Status",
+            "path": "btrfs-scrub.html"
+        }
+    }
+}
