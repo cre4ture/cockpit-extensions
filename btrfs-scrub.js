@@ -8,11 +8,18 @@ document.addEventListener("DOMContentLoaded", function () {
     function parseOutput(data) {
         const outputElement = document.getElementById("scrub-output");
         const progressBar = document.getElementById("scrub-progress");
+        const startButton = document.getElementById("start-scrub-button");
         outputElement.innerText = data;
 
         const match = data.match(/\((\d+\.\d+)%\)/);
         if (match) {
             progressBar.value = parseFloat(match[1]);
+        }
+
+        if (data.includes("running")) {
+            startButton.disabled = true;
+        } else {
+            startButton.disabled = false;
         }
     }
 
