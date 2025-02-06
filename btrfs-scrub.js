@@ -18,4 +18,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fetchScrubStatus();
     setInterval(fetchScrubStatus, 10000);
+
+    document.getElementById("start-scrub-button").addEventListener("click", function () {
+        cockpit.spawn(["btrfs", "scrub", "start", "/mnt/diskdata"], { superuser: true })
+            .then(() => alert("Scrub started successfully"))
+            .catch(error => alert("Error starting scrub: " + error));
+    });
 });
