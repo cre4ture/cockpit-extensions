@@ -4,6 +4,7 @@
     <title>Btrfs Scrub Status</title>
     <meta charset="utf-8">
     <script src="../base1/cockpit.js"></script>
+    <script src="btrfs-scrub.js"></script>
     <link rel="stylesheet" href="../system/overview.css">
     <link rel="stylesheet" href="btrfs-scrub-dark-mode.css">
 </head>
@@ -25,8 +26,17 @@
                             </div>
                             <div class="pf-v5-c-card__body">
                                 <pre id="scrub-output">Fetching status...</pre>
-                                <progress id="scrub-progress" value="0" max="100"></progress>
+                                <progress id="scrub-progress" class="full-width-progress" value="0" max="100"></progress>
                                 <button id="start-scrub-button">Start Scrub</button>
+                            </div>
+                        </div>
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__title">
+                                <div id="balance-status" class="pf-v5-c-card__title-text">Balance Status</div>
+                            </div>
+                            <div class="pf-v5-c-card__body">
+                                <pre id="balance-output">Fetching status...</pre>
+                                <progress id="balance-progress" class="full-width-progress" value="0" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -34,6 +44,5 @@
             </main>
         </div>
     </div>
-    <script src="btrfs-scrub.js"></script>
 </body>
 </html>
