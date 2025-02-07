@@ -1,0 +1,42 @@
+body {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+.pf-v5-c-card {
+    background-color: #2a2a2a;
+    border: 1px solid #444444;
+}
+
+.pf-v5-c-card__title {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+.pf-v5-c-card__body {
+    padding: 15px;
+}
+
+#smart-output {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    border: 1px solid #444444;
+    padding: 10px;
+    overflow: auto;
+}
+
+progress {
+    background-color: #444444;
+}
+
+button {
+    background-color: #007acc;
+    color: #ffffff;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #005f99;
+}

@@ -1,0 +1,9 @@
+{
+    "version": 0,
+    "tools": {
+        "smart": {
+            "label": "S.M.A.R.T. Status",
+            "path": "smart.html"
+        }
+    }
+}

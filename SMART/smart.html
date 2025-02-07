@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>S.M.A.R.T. Status</title>
+    <meta charset="utf-8">
+    <script src="../base1/cockpit.js"></script>
+    <script src="smart.js"></script>
+    <link rel="stylesheet" href="../system/overview.css">
+    <link rel="stylesheet" href="smart-dark-mode.css">
+</head>
+<body class="pf-v5-m-tabular-nums">
+    <div class="ct-page-fill" id="overview">
+        <div class="pf-v5-c-page">
+            <main class="pf-v5-c-page__main" tabindex="-1">
+                <section class="pf-v5-c-page__main-section pf-m-no-padding pf-m-light"></section>
+                <section class="pf-v5-c-page__main-section pf-m-padding pf-m-light ct-overview-header">
+                    <div class="ct-overview-header-hostname">
+                        <h1>S.M.A.R.T. Status</h1>
+                    </div>
+                </section>
+                <section class="pf-v5-c-page__main-section">
+                    <div class="pf-v5-l-gallery pf-m-gutter ct-system-overview">
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__title">
+                                <div id="sda-status" class="pf-v5-c-card__title-text">S.M.A.R.T. Status for /dev/sda</div>
+                            </div>
+                            <div class="pf-v5-c-card__body">
+                                <pre id="sda-output">Fetching status...</pre>
+                                <progress id="sda-progress" class="full-width-progress" value="0" max="100"></progress>
+                            </div>
+                        </div>
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__title">
+                                <div id="sdb-status" class="pf-v5-c-card__title-text">S.M.A.R.T. Status for /dev/sdb</div>
+                            </div>
+                            <div class="pf-v5-c-card__body">
+                                <pre id="sdb-output">Fetching status...</pre>
+                                <progress id="sdb-progress" class="full-width-progress" value="0" max="100"></progress>
+                            </div>
+                        </div>
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__title">
+                                <div id="sdc-status" class="pf-v5-c-card__title-text">S.M.A.R.T. Status for /dev/sdc</div>
+                            </div>
+                            <div class="pf-v5-c-card__body">
+                                <pre id="sdc-output">Fetching status...</pre>
+                                <progress id="sdc-progress" class="full-width-progress" value="0" max="100"></progress>
+                            </div>
+                        </div>
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__title">
+                                <div id="sdd-status" class="pf-v5-c-card__title-text">S.M.A.R.T. Status for /dev/sdd</div>
+                            </div>
+                            <div class="pf-v5-c-card__body">
+                                <pre id="sdd-output">Fetching status...</pre>
+                                <progress id="sdd-progress" class="full-width-progress" value="0" max="100"></progress>
+                            </div>
+                        </div>
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__title">
+                                <div id="sde-status" class="pf-v5-c-card__title-text">S.M.A.R.T. Status for /dev/sde</div>
+                            </div>
+                            <div class="pf-v5-c-card__body">
+                                <pre id="sde-output">Fetching status...</pre>
+                                <progress id="sde-progress" class="full-width-progress" value="0" max="100"></progress>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
