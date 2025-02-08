@@ -25,6 +25,10 @@ body {
     overflow: auto;
 }
 
+.full-output {
+    display: none;
+}
+
 progress {
     background-color: #444444;
 }
