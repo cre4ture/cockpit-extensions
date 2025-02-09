@@ -1,20 +1,28 @@
-body {
-    background-color: #1e1e1e;
-    color: #ffffff;
-}
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1e1e1e;
+        color: #ffffff;
+    }
 
-.pf-v5-c-card {
-    background-color: #2a2a2a;
-    border: 1px solid #444444;
-}
+    .pf-v5-c-page__main-section {
+        background-color: #2e2e2e;
+    }
+    
+    .pf-v5-c-card {
+        background-color: #3e3e3e;
+        color: #ffffff;
+        border: 1px solid #444444;
+    }
 
-.pf-v5-c-card__title {
-    background-color: #333333;
-    color: #ffffff;
-}
+    .pf-v5-c-card__title {
+        background-color: #333333;
+        color: #ffffff;
+    }
 
-.pf-v5-c-card__body {
-    padding: 15px;
+    .pf-v5-c-card__body {
+        color: #ffffff;
+        padding: 15px;
+    }
 }
 
 #smart-output {
@@ -43,4 +51,8 @@ button {
 
 button:hover {
     background-color: #005f99;
+}
+
+.status-passed {
+    color: #00ff00; /* Green color for PASSED status */
 }

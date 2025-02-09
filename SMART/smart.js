@@ -62,13 +62,17 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
+        let overallHealthHtml = summary.overallHealth;
+        if (summary.overallHealth === "PASSED") {
+            overallHealthHtml = `<span class="status-passed">${summary.overallHealth}</span>`;
+        }
+
         let formattedOutput = `
             <div>
-                <h3>Drive ${drive} Summary</h3>
                 <table>
                     <tr><td><strong>Device Model:</strong></td><td>${summary.deviceModel}</td></tr>
                     <tr><td><strong>User Capacity:</strong></td><td>${summary.userCapacity}</td></tr>
-                    <tr><td><strong>Overall Health:</strong></td><td>${summary.overallHealth}</td></tr>
+                    <tr><td><strong>Overall Health:</strong></td><td>${overallHealthHtml}</td></tr>
                     <tr><td><strong>Sectors</strong></td><td></td></tr>
                     <tr><td><strong>- Reallocated:</strong></td><td>${summary.reallocatedSectors}</td></tr>
                     <tr><td><strong>- Pending:</strong></td><td>${summary.pendingSectors}</td></tr>
@@ -89,6 +93,8 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById(`${drive}-toggle-button`).addEventListener("click", function () {
             toggleFullOutput(drive);
         });
+
+        updateSmartStatus(drive, summary);
     }
 
     function parseKeyColonValuePair(line) {
@@ -131,6 +137,17 @@ document.addEventListener("DOMContentLoaded", function () {
             fullOutputElement.classList.remove("full-output");
         } else {
             fullOutputElement.classList.add("full-output");
+        }
+    }
+
+    function updateSmartStatus(device, summary) {
+        const statusElement = document.getElementById(`${device}-status`);
+        const outputElement = document.getElementById(`${device}-output`);
+        
+        if (summary.overallHealth === "PASSED") {
+            statusElement.innerHTML = `<span class="status-passed">S.M.A.R.T. Status for ${device}</span>`;
+        } else {
+            statusElement.innerHTML = `S.M.A.R.T. Status for ${device}`;
         }
     }
 
