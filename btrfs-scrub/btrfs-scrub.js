@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const outputElement = document.getElementById("scrub-output");
         const progressBar = document.getElementById("scrub-progress");
         const startButton = document.getElementById("start-scrub-button");
+        const stopButton = document.getElementById("stop-scrub-button");
+        const resumeButton = document.getElementById("resume-scrub-button");
         outputElement.innerText = data;
 
         const match = data.match(/\((\d+(\.\d+)?)%\)/);
@@ -23,8 +25,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (data.includes("running")) {
             startButton.disabled = true;
+            stopButton.disabled = false;
+            resumeButton.disabled = true;
+        } else if (data.includes("paused") || data.includes("aborted")) {
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            resumeButton.disabled = false;
         } else {
             startButton.disabled = false;
+            stopButton.disabled = true;
+            resumeButton.disabled = true;
         }
     }
 
@@ -46,7 +56,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("start-scrub-button").addEventListener("click", function () {
         cockpit.spawn(["btrfs", "scrub", "start", "/mnt/diskdata"], { superuser: true })
-            .then(() => alert("Scrub started successfully"))
+            .then(() => {
+                alert("Scrub started successfully");
+                fetchScrubStatus();
+            })
             .catch(error => alert("Error starting scrub: " + error));
+    });
+
+    document.getElementById("stop-scrub-button").addEventListener("click", function () {
+        cockpit.spawn(["btrfs", "scrub", "cancel", "/mnt/diskdata"], { superuser: true })
+            .then(() => {
+                alert("Scrub stopped successfully");
+                fetchScrubStatus();
+            })
+            .catch(error => alert("Error stopping scrub: " + error));
+    });
+
+    document.getElementById("resume-scrub-button").addEventListener("click", function () {
+        cockpit.spawn(["btrfs", "scrub", "resume", "/mnt/diskdata"], { superuser: true })
+            .then(() => {
+                alert("Scrub resumed successfully");
+                fetchScrubStatus();
+            })
+            .catch(error => alert("Error resuming scrub: " + error));
     });
 });
