@@ -1,22 +1,41 @@
 document.addEventListener("DOMContentLoaded", function () {
     function fetchSmartStatus() {
-        const basePath = "/dev/";
-        const drives = ["sda", "sdb", "sdc", "sdd", "sde"];
-        drives.forEach(drive => {
-            const fullPath = basePath + drive;
-            let smartData = "";
+        cockpit.spawn(["lsblk", "-d", "-n", "-o", "NAME"], { superuser: true })
+            .then(data => {
+                const drives = data.trim().split("\n");
+                const container = document.getElementById("drive-status-cards");
+                container.innerHTML = ""; // Clear existing cards
+                drives.forEach(drive => {
+                    const card = document.createElement("div");
+                    card.className = "pf-v5-c-card";
+                    card.innerHTML = `
+                        <div class="pf-v5-c-card__title">
+                            <div id="${drive}-status" class="pf-v5-c-card__title-text">S.M.A.R.T. Status for /dev/${drive}</div>
+                        </div>
+                        <div class="pf-v5-c-card__body">
+                            <div id="${drive}-output">Fetching status...</div>
+                        </div>
+                    `;
+                    container.appendChild(card);
 
-            cockpit.spawn(["smartctl", "-a", "-x", fullPath], { superuser: true })
-                .stream(data => {
-                     smartData += data
-                })
-                .catch(error => {
-                    document.getElementById(drive + "-output").innerText = "Error fetching status: " + error
-                })
-                .then(() => {
-                    parseSmartOutput(smartData, drive)
+                    const fullPath = "/dev/" + drive;
+                    let smartData = "";
+
+                    cockpit.spawn(["smartctl", "-a", "-x", fullPath], { superuser: true })
+                        .stream(data => {
+                            smartData += data;
+                        })
+                        .catch(error => {
+                            document.getElementById(drive + "-output").innerText = "Error fetching status: " + error;
+                        })
+                        .then(() => {
+                            parseSmartOutput(smartData, drive);
+                        });
                 });
-        });
+            })
+            .catch(error => {
+                console.error("Error fetching drive list: " + error);
+            });
     }
 
     function printCapacity(value) {
