@@ -14,7 +14,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (!snapshots[name]) {
                         snapshots[name] = [];
                     }
-                    snapshots[name].push(formatTimestamp(timestamp));
+                    const formattedTimestamp = formatTimestamp(timestamp);
+                    const fullPath = `/mnt/diskdata/zzz_btrbk_snapshots/${name}.${timestamp}`;
+                    snapshots[name].push({ formattedTimestamp, fullPath });
                 });
 
                 let globalTotalSnapshots = 0;
@@ -30,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     const snapshotBody = document.createElement("div");
                     snapshotBody.className = "pf-v5-c-card__body";
-                    const groupedSnapshots = groupByDate(snapshots[target]);
+                    const groupedSnapshots = groupByDate(snapshots[target], target);
 
                     // Calculate total snapshots
                     const totalSnapshots = Object.values(groupedSnapshots).reduce((acc, year) => 
@@ -48,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     table.style.tableLayout = "fixed"; // Ensure fixed table layout
 
                     const headerRow = document.createElement("tr");
-                    headerRow.innerHTML = "<th>Year</th><th>Month</th><th>Date</th><th>Time</th>";
+                    headerRow.innerHTML = "<th>Year</th><th>Month</th><th>Date</th><th>Time</th><th>Path</th>";
                     table.appendChild(headerRow);
 
                     const years = Object.keys(groupedSnapshots).sort((a, b) => b - a); // Sort years in descending order
@@ -105,9 +107,22 @@ document.addEventListener("DOMContentLoaded", function() {
                                     snapshotsCell.style.textOverflow = "ellipsis"; // Add ellipsis for overflow text
                                     snapshotsCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
                                     const snapItem = document.createElement("p");
-                                    snapItem.textContent = snap;
+                                    snapItem.textContent = snap.time;
                                     snapshotsCell.appendChild(snapItem);
                                     dayRow.appendChild(snapshotsCell);
+
+                                    // Add full path cell with tooltip
+                                    const pathCell = document.createElement("td");
+                                    pathCell.style.whiteSpace = "nowrap"; // Ensure text does not wrap
+                                    pathCell.style.overflow = "hidden"; // Hide overflow text
+                                    pathCell.style.textOverflow = "ellipsis"; // Add ellipsis for overflow text
+                                    pathCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
+                                    const pathItem = document.createElement("p");
+                                    pathItem.textContent = snap.fullPath;
+                                    pathItem.title = snap.fullPath; // Add tooltip
+                                    pathCell.appendChild(pathItem);
+                                    dayRow.appendChild(pathCell);
+
                                     table.appendChild(dayRow);
                                 });
                             }
@@ -136,10 +151,10 @@ document.addEventListener("DOMContentLoaded", function() {
         return `${year}-${month}-${day} ${hour}:${minute}`;
     }
 
-    function groupByDate(snapshots) {
+    function groupByDate(snapshots, target) {
         const grouped = {};
         snapshots.forEach(snapshot => {
-            const [date, time] = snapshot.split(" ");
+            const [date, time] = snapshot.formattedTimestamp.split(" ");
             const [year, month, day] = date.split("-");
             if (!grouped[year]) {
                 grouped[year] = {};
@@ -150,14 +165,14 @@ document.addEventListener("DOMContentLoaded", function() {
             if (!grouped[year][month][day]) {
                 grouped[year][month][day] = [];
             }
-            grouped[year][month][day].push(time);
+            grouped[year][month][day].push({ time, fullPath: snapshot.fullPath });
         });
 
         // Sort times in descending order
         for (const year in grouped) {
             for (const month in grouped[year]) {
                 for (const day in grouped[year][month]) {
-                    grouped[year][month][day].sort((a, b) => b.localeCompare(a));
+                    grouped[year][month][day].sort((a, b) => b.time.localeCompare(a.time));
                 }
             }
         }
