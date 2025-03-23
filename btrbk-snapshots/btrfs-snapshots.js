@@ -1,32 +1,36 @@
 document.addEventListener("DOMContentLoaded", function() {
     const snapshotList = document.getElementById("snapshot-list");
     const globalSnapshotCount = document.getElementById("global-snapshot-count");
-    const SNAPSHOT_BASE_PATHS = ["/mnt/diskdata/zzz_btrbk_snapshots", "/mnt/diskdata/zzz_btrbk_snapshots/backups"]; // Define the array of base paths
+    const SNAPSHOT_BASE_PATHS = [
+        { path: "/mnt/diskdata/zzz_btrbk_snapshots", name: "Main" },
+        { path: "/mnt/diskdata/zzz_btrbk_snapshots/backups", name: "Backups" }
+    ]; // Define the array of base paths with custom names
 
     // Function to fetch and display snapshots
     function fetchSnapshots() {
         let globalTotalSnapshots = 0;
         let allSnapshots = {};
 
-        Promise.all(SNAPSHOT_BASE_PATHS.map(path => fetchSnapshotData(path, allSnapshots)))
+        Promise.all(SNAPSHOT_BASE_PATHS.map(base => fetchSnapshotData(base.path, base.name, allSnapshots)))
             .then(() => {
                 displaySnapshots(allSnapshots, globalTotalSnapshots);
             });
     }
 
-    function fetchSnapshotData(path, allSnapshots) {
+    function fetchSnapshotData(path, baseName, allSnapshots) {
         return cockpit.spawn(["ls", path], { superuser: true })
             .then(data => {
                 const snapshotDirs = data.trim().split("\n");
                 snapshotDirs.forEach(dir => {
                     if (!dir.includes(".")) return; // Skip entries that do not contain a "."
                     const [name, timestamp] = dir.split(".");
-                    if (!allSnapshots[name]) {
-                        allSnapshots[name] = [];
+                    const targetName = `${baseName} - ${name}`;
+                    if (!allSnapshots[targetName]) {
+                        allSnapshots[targetName] = [];
                     }
                     const formattedTimestamp = formatTimestamp(timestamp);
                     const fullPath = `${path}/${dir}`;
-                    allSnapshots[name].push({ formattedTimestamp, fullPath });
+                    allSnapshots[targetName].push({ formattedTimestamp, fullPath });
                 });
             })
             .catch(error => {
