@@ -94,3 +94,7 @@ td strong {
     position: sticky;
     top: 50px; /* Unterhalb des Tabellen-Headers */
 }
+
+.snapshot-total {
+    color: #c4c4c4;
+}

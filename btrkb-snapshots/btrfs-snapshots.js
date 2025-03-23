@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                         const yearCell = document.createElement("td");
                                         yearCell.rowSpan = yearRowSpan;
                                         yearCell.innerHTML = `<strong>${year}</strong>`;
+                                        appendCount(yearCell, yearRowSpan);
                                         yearCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
                                         dayRow.appendChild(yearCell);
                                         yearCellAdded = true;
@@ -67,6 +68,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                         const monthCell = document.createElement("td");
                                         monthCell.rowSpan = monthRowSpan;
                                         monthCell.innerHTML = `<strong>${month}</strong>`;
+                                        appendCount(monthCell, monthRowSpan);
                                         monthCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
                                         dayRow.appendChild(monthCell);
                                         monthCellAdded = true;
@@ -76,6 +78,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                         const dayCell = document.createElement("td");
                                         dayCell.rowSpan = dayRowSpan;
                                         dayCell.innerHTML = `<strong>${day}</strong>`;
+                                        appendCount(dayCell, dayRowSpan);
                                         dayCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
                                         dayRow.appendChild(dayCell);
                                         dayCellAdded = true;
@@ -132,6 +135,12 @@ document.addEventListener("DOMContentLoaded", function() {
             grouped[year][month][day].push(time);
         });
         return grouped;
+    }
+
+    function appendCount(cell, count) {
+        if (count > 2) {
+            cell.innerHTML += `<div class="snapshot-total">total:<br>${count}<div>`;
+        }
     }
 
     fetchSnapshots();
