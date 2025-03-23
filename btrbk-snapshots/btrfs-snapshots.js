@@ -1,10 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
     const snapshotList = document.getElementById("snapshot-list");
     const globalSnapshotCount = document.getElementById("global-snapshot-count");
+    const SNAPSHOT_BASE_PATH = "/mnt/diskdata/zzz_btrbk_snapshots"; // Define the constant path
 
     // Function to fetch and display snapshots
     function fetchSnapshots() {
-        cockpit.spawn(["ls", "/mnt/diskdata/zzz_btrbk_snapshots"], { superuser: true })
+        cockpit.spawn(["ls", SNAPSHOT_BASE_PATH], { superuser: true })
             .then(data => {
                 const snapshotDirs = data.trim().split("\n");
                 const snapshots = {};
@@ -15,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         snapshots[name] = [];
                     }
                     const formattedTimestamp = formatTimestamp(timestamp);
-                    const fullPath = `/mnt/diskdata/zzz_btrbk_snapshots/${name}.${timestamp}`;
+                    const fullPath = `${SNAPSHOT_BASE_PATH}/${dir}`;
                     snapshots[name].push({ formattedTimestamp, fullPath });
                 });
 
