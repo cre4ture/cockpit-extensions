@@ -30,6 +30,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     const groupedSnapshots = groupByDate(snapshots[target]);
 
                     const table = document.createElement("table");
+                    table.style.tableLayout = "fixed"; // Ensure fixed table layout
+
                     const headerRow = document.createElement("tr");
                     headerRow.innerHTML = "<th>Year</th><th>Month</th><th>Date</th><th>Time</th>";
                     table.appendChild(headerRow);
@@ -49,6 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                     const yearCell = document.createElement("td");
                                     yearCell.rowSpan = yearRowSpan;
                                     yearCell.innerHTML = `<strong>${year}</strong>`;
+                                    yearCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
                                     dayRow.appendChild(yearCell);
                                     yearCellAdded = true;
                                 }
@@ -57,15 +60,21 @@ document.addEventListener("DOMContentLoaded", function() {
                                     const monthCell = document.createElement("td");
                                     monthCell.rowSpan = monthRowSpan;
                                     monthCell.innerHTML = `<strong>${month}</strong>`;
+                                    monthCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
                                     dayRow.appendChild(monthCell);
                                     monthCellAdded = true;
                                 }
 
                                 const dayCell = document.createElement("td");
                                 dayCell.innerHTML = `<strong>${day}</strong>`;
+                                dayCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
                                 dayRow.appendChild(dayCell);
 
                                 const snapshotsCell = document.createElement("td");
+                                snapshotsCell.style.whiteSpace = "nowrap"; // Ensure text does not wrap
+                                snapshotsCell.style.overflow = "hidden"; // Hide overflow text
+                                snapshotsCell.style.textOverflow = "ellipsis"; // Add ellipsis for overflow text
+                                snapshotsCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
                                 groupedSnapshots[year][month][day].forEach(snap => {
                                     const snapItem = document.createElement("p");
                                     snapItem.textContent = snap;

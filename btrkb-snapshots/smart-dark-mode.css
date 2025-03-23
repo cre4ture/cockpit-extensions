@@ -56,3 +56,28 @@ button:hover {
 .status-passed {
     color: #00ff00; /* Green color for PASSED status */
 }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #444444;
+    padding: 8px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top; /* Ensure text is aligned to the top */
+}
+
+th {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+td {
+    background-color: #2e2e2e;
+    color: #ffffff;
+}
