@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (!snapshots[name]) {
                         snapshots[name] = [];
                     }
-                    snapshots[name].push(timestamp);
+                    snapshots[name].push(formatTimestamp(timestamp));
                 });
 
                 for (const target in snapshots) {
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     const snapshotBody = document.createElement("div");
                     snapshotBody.className = "pf-v5-c-card__body";
-                    snapshots[target].forEach(snap => {
+                    snapshots[target].reverse().forEach(snap => { // Reverse the order
                         const snapItem = document.createElement("p");
                         snapItem.textContent = snap;
                         snapshotBody.appendChild(snapItem);
@@ -40,6 +40,15 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(error => {
                 console.error("Error fetching snapshots: " + error);
             });
+    }
+
+    function formatTimestamp(timestamp) {
+        const year = timestamp.substring(0, 4);
+        const month = timestamp.substring(4, 6);
+        const day = timestamp.substring(6, 8);
+        const hour = timestamp.substring(9, 11);
+        const minute = timestamp.substring(11, 13);
+        return `${year}-${month}-${day} ${hour}:${minute}`;
     }
 
     fetchSnapshots();
