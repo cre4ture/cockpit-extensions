@@ -1,0 +1,9 @@
+{
+    "version": 0,
+    "tools": {
+        "btrbk-snapshots": {
+            "label": "BTRBK Snapshots",
+            "path": "btrfs-snapshots.html"
+        }
+    }
+}
