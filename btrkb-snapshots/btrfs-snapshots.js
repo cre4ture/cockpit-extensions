@@ -37,51 +37,58 @@ document.addEventListener("DOMContentLoaded", function() {
                     table.appendChild(headerRow);
 
                     for (const year in groupedSnapshots) {
-                        const yearRowSpan = Object.values(groupedSnapshots[year]).reduce((acc, month) => acc + Object.keys(month).length, 0);
+                        const yearRowSpan = Object.values(groupedSnapshots[year]).reduce((acc, month) => acc + Object.values(month).reduce((acc, day) => acc + day.length, 0), 0);
                         let yearCellAdded = false;
 
                         for (const month in groupedSnapshots[year]) {
-                            const monthRowSpan = Object.keys(groupedSnapshots[year][month]).length;
+                            const monthRowSpan = Object.values(groupedSnapshots[year][month]).reduce((acc, day) => acc + day.length, 0);
                             let monthCellAdded = false;
 
                             for (const day in groupedSnapshots[year][month]) {
-                                const dayRow = document.createElement("tr");
+                                const dayRowSpan = groupedSnapshots[year][month][day].length;
+                                let dayCellAdded = false;
 
-                                if (!yearCellAdded) {
-                                    const yearCell = document.createElement("td");
-                                    yearCell.rowSpan = yearRowSpan;
-                                    yearCell.innerHTML = `<strong>${year}</strong>`;
-                                    yearCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
-                                    dayRow.appendChild(yearCell);
-                                    yearCellAdded = true;
-                                }
-
-                                if (!monthCellAdded) {
-                                    const monthCell = document.createElement("td");
-                                    monthCell.rowSpan = monthRowSpan;
-                                    monthCell.innerHTML = `<strong>${month}</strong>`;
-                                    monthCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
-                                    dayRow.appendChild(monthCell);
-                                    monthCellAdded = true;
-                                }
-
-                                const dayCell = document.createElement("td");
-                                dayCell.innerHTML = `<strong>${day}</strong>`;
-                                dayCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
-                                dayRow.appendChild(dayCell);
-
-                                const snapshotsCell = document.createElement("td");
-                                snapshotsCell.style.whiteSpace = "nowrap"; // Ensure text does not wrap
-                                snapshotsCell.style.overflow = "hidden"; // Hide overflow text
-                                snapshotsCell.style.textOverflow = "ellipsis"; // Add ellipsis for overflow text
-                                snapshotsCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
                                 groupedSnapshots[year][month][day].forEach(snap => {
+                                    const dayRow = document.createElement("tr");
+
+                                    if (!yearCellAdded) {
+                                        const yearCell = document.createElement("td");
+                                        yearCell.rowSpan = yearRowSpan;
+                                        yearCell.innerHTML = `<strong>${year}</strong>`;
+                                        yearCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
+                                        dayRow.appendChild(yearCell);
+                                        yearCellAdded = true;
+                                    }
+
+                                    if (!monthCellAdded) {
+                                        const monthCell = document.createElement("td");
+                                        monthCell.rowSpan = monthRowSpan;
+                                        monthCell.innerHTML = `<strong>${month}</strong>`;
+                                        monthCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
+                                        dayRow.appendChild(monthCell);
+                                        monthCellAdded = true;
+                                    }
+
+                                    if (!dayCellAdded) {
+                                        const dayCell = document.createElement("td");
+                                        dayCell.rowSpan = dayRowSpan;
+                                        dayCell.innerHTML = `<strong>${day}</strong>`;
+                                        dayCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
+                                        dayRow.appendChild(dayCell);
+                                        dayCellAdded = true;
+                                    }
+
+                                    const snapshotsCell = document.createElement("td");
+                                    snapshotsCell.style.whiteSpace = "nowrap"; // Ensure text does not wrap
+                                    snapshotsCell.style.overflow = "hidden"; // Hide overflow text
+                                    snapshotsCell.style.textOverflow = "ellipsis"; // Add ellipsis for overflow text
+                                    snapshotsCell.style.verticalAlign = "top"; // Ensure text is aligned to the top
                                     const snapItem = document.createElement("p");
                                     snapItem.textContent = snap;
                                     snapshotsCell.appendChild(snapItem);
+                                    dayRow.appendChild(snapshotsCell);
+                                    table.appendChild(dayRow);
                                 });
-                                dayRow.appendChild(snapshotsCell);
-                                table.appendChild(dayRow);
                             }
                         }
                     }
