@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     const snapshotList = document.getElementById("snapshot-list");
+    const globalSnapshotCount = document.getElementById("global-snapshot-count");
 
     // Function to fetch and display snapshots
     function fetchSnapshots() {
@@ -16,6 +17,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     snapshots[name].push(formatTimestamp(timestamp));
                 });
 
+                let globalTotalSnapshots = 0;
+
                 for (const target in snapshots) {
                     const targetDiv = document.createElement("div");
                     targetDiv.className = "pf-v5-c-card";
@@ -28,6 +31,18 @@ document.addEventListener("DOMContentLoaded", function() {
                     const snapshotBody = document.createElement("div");
                     snapshotBody.className = "pf-v5-c-card__body";
                     const groupedSnapshots = groupByDate(snapshots[target]);
+
+                    // Calculate total snapshots
+                    const totalSnapshots = Object.values(groupedSnapshots).reduce((acc, year) => 
+                        acc + Object.values(year).reduce((acc, month) => 
+                            acc + Object.values(month).reduce((acc, day) => acc + day.length, 0), 0), 0);
+
+                    globalTotalSnapshots += totalSnapshots;
+
+                    // Add total snapshots count before the table
+                    const totalSnapshotsDiv = document.createElement("div");
+                    totalSnapshotsDiv.innerHTML = `<strong>Total Snapshots: ${totalSnapshots}</strong>`;
+                    snapshotBody.appendChild(totalSnapshotsDiv);
 
                     const table = document.createElement("table");
                     table.style.tableLayout = "fixed"; // Ensure fixed table layout
@@ -103,6 +118,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     snapshotList.appendChild(targetDiv);
                 }
+
+                // Update global snapshot count
+                globalSnapshotCount.innerHTML = `<strong>Global Total Snapshots: ${globalTotalSnapshots}</strong>`;
             })
             .catch(error => {
                 console.error("Error fetching snapshots: " + error);
