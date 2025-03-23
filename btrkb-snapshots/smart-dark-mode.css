@@ -70,14 +70,27 @@ th, td {
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: top; /* Ensure text is aligned to the top */
+    z-index: 1;
+    background-color: inherit; /* Ensure background color is inherited */
+    /* padding-top: 40px; /* Adjust this value based on the height of your sticky header */
 }
 
+/* Ensure the sticky cells are above other content */
 th {
     background-color: #333333;
     color: #ffffff;
+    z-index: 2;
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    top: 0; /* Ensure the header is at the top */
 }
 
 td {
     background-color: #2e2e2e;
     color: #ffffff;
+}
+
+td strong {
+    position: sticky;
+    top: 50px; /* Unterhalb des Tabellen-Headers */
 }
