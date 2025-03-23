@@ -134,6 +134,16 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             grouped[year][month][day].push(time);
         });
+
+        // Sort times in descending order
+        for (const year in grouped) {
+            for (const month in grouped[year]) {
+                for (const day in grouped[year][month]) {
+                    grouped[year][month][day].sort((a, b) => b.localeCompare(a));
+                }
+            }
+        }
+
         return grouped;
     }
 
