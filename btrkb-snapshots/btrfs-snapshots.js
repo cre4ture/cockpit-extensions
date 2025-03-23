@@ -36,15 +36,18 @@ document.addEventListener("DOMContentLoaded", function() {
                     headerRow.innerHTML = "<th>Year</th><th>Month</th><th>Date</th><th>Time</th>";
                     table.appendChild(headerRow);
 
-                    for (const year in groupedSnapshots) {
+                    const years = Object.keys(groupedSnapshots).sort((a, b) => b - a); // Sort years in descending order
+                    for (const year of years) {
                         const yearRowSpan = Object.values(groupedSnapshots[year]).reduce((acc, month) => acc + Object.values(month).reduce((acc, day) => acc + day.length, 0), 0);
                         let yearCellAdded = false;
 
-                        for (const month in groupedSnapshots[year]) {
+                        const months = Object.keys(groupedSnapshots[year]).sort((a, b) => b - a); // Sort months in descending order
+                        for (const month of months) {
                             const monthRowSpan = Object.values(groupedSnapshots[year][month]).reduce((acc, day) => acc + day.length, 0);
                             let monthCellAdded = false;
 
-                            for (const day in groupedSnapshots[year][month]) {
+                            const days = Object.keys(groupedSnapshots[year][month]).sort((a, b) => b - a); // Sort days in descending order
+                            for (const day of days) {
                                 const dayRowSpan = groupedSnapshots[year][month][day].length;
                                 let dayCellAdded = false;
 
