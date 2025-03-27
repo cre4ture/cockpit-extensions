@@ -39,7 +39,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function displaySnapshots(allSnapshots, globalTotalSnapshots) {
-        for (const target in allSnapshots) {
+        const sortedTargets = Object.keys(allSnapshots).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+        for (const target of sortedTargets) {
             const targetDiv = createTargetDiv(target);
             const snapshotBody = document.createElement("div");
             snapshotBody.className = "pf-v5-c-card__body";
