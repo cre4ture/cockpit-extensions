@@ -55,8 +55,11 @@ document.addEventListener("DOMContentLoaded", function() {
             totalSnapshotsDiv.innerHTML = `<strong>Total Snapshots: ${totalSnapshots}</strong>`;
             snapshotBody.appendChild(totalSnapshotsDiv);
 
+            const tableDiv = document.createElement("div");
+            tableDiv.className = "snapshot-card-body"; // Add custom class for styling
             const table = createSnapshotTable(groupedSnapshots);
-            snapshotBody.appendChild(table);
+            tableDiv.appendChild(table);
+            snapshotBody.appendChild(tableDiv);
             targetDiv.appendChild(snapshotBody);
 
             snapshotList.appendChild(targetDiv);

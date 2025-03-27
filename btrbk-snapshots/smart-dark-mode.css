@@ -98,3 +98,8 @@ td strong {
 .snapshot-total {
     color: #c4c4c4;
 }
+
+.snapshot-card-body {
+    max-height: 600px; /* Limit the vertical size of the card body */
+    overflow-y: auto; /* Enable vertical scrolling */
+}
