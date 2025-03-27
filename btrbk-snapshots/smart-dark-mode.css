@@ -60,6 +60,7 @@ button:hover {
 table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed; /* Ensure fixed table layout */
 }
 
 th, td {
@@ -77,12 +78,29 @@ th, td {
 
 /* Ensure the sticky cells are above other content */
 th {
+    width: 80px; /* Fixed width for the first column */
     background-color: #333333;
     color: #ffffff;
     z-index: 2;
     position: -webkit-sticky; /* For Safari */
     position: sticky;
     top: 0; /* Ensure the header is at the top */
+}
+
+th:nth-child(2) {
+    width: 80px; /* Fixed width for the second column */
+}
+
+th:nth-child(3) {
+    width: 80px; /* Fixed width for the third column */
+}
+
+th:nth-child(4) {
+    width: 80px; /* Fixed width for the fourth column */
+}
+
+th:nth-child(5) {
+    width: auto; /* Remaining space for the fifth column */
 }
 
 td {

@@ -113,7 +113,13 @@ document.addEventListener("DOMContentLoaded", function() {
         table.style.tableLayout = "fixed"; // Ensure fixed table layout
 
         const headerRow = document.createElement("tr");
-        headerRow.innerHTML = "<th>Year</th><th>Month</th><th>Date</th><th>Time</th><th>Path</th>";
+        headerRow.innerHTML = `
+            <th>Year</th>
+            <th>Month</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Path</th>
+        `;
         table.appendChild(headerRow);
 
         const years = Object.keys(groupedSnapshots).sort((a, b) => b - a); // Sort years in descending order
