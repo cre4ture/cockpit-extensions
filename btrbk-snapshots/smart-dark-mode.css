@@ -103,3 +103,48 @@ td strong {
     max-height: 600px; /* Limit the vertical size of the card body */
     overflow-y: auto; /* Enable vertical scrolling */
 }
+
+#fullscreen-card-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    overflow: auto;
+}
+
+#fullscreen-card-container.hidden {
+    display: none;
+}
+
+#close-fullscreen-card {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ff4d4d;
+    color: #ffffff;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+#close-fullscreen-card:hover {
+    background-color: #cc0000;
+}
+
+#fullscreen-card-content {
+    width: 90%;
+    height: 90%;
+    overflow: auto;
+    background-color: #2e2e2e;
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+}

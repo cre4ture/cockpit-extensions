@@ -75,11 +75,32 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const targetHeader = document.createElement("div");
         targetHeader.className = "pf-v5-c-card__header";
-        targetHeader.innerHTML = `<h2>${target}</h2>`;
+
+        // Make the title clickable
+        const targetTitle = document.createElement("h2");
+        targetTitle.innerHTML = target;
+        targetTitle.style.cursor = "pointer";
+        targetTitle.addEventListener("click", () => showFullscreenCard(targetDiv.cloneNode(true)));
+
+        targetHeader.appendChild(targetTitle);
         targetDiv.appendChild(targetHeader);
 
         return targetDiv;
     }
+
+    function showFullscreenCard(card) {
+        const fullscreenContainer = document.getElementById("fullscreen-card-container");
+        const fullscreenContent = document.getElementById("fullscreen-card-content");
+
+        fullscreenContent.innerHTML = ""; // Clear previous content
+        fullscreenContent.appendChild(card); // Add the cloned card
+        fullscreenContainer.classList.remove("hidden");
+    }
+
+    document.getElementById("close-fullscreen-card").addEventListener("click", () => {
+        const fullscreenContainer = document.getElementById("fullscreen-card-container");
+        fullscreenContainer.classList.add("hidden");
+    });
 
     function calculateTotalSnapshots(groupedSnapshots) {
         return Object.values(groupedSnapshots).reduce((acc, year) => 
