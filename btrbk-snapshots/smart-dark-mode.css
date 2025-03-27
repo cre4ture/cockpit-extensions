@@ -104,6 +104,12 @@ td strong {
     overflow-y: auto; /* Enable vertical scrolling */
 }
 
+/* Disable max-height and overflow-y in fullscreen mode */
+#fullscreen-card-container .snapshot-card-body {
+    max-height: none;
+    overflow-y: visible;
+}
+
 #fullscreen-card-container {
     position: fixed;
     top: 0;
@@ -140,11 +146,11 @@ td strong {
 }
 
 #fullscreen-card-content {
-    width: 90%;
-    height: 90%;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
     overflow: auto;
     background-color: #2e2e2e;
     color: #ffffff;
-    padding: 20px;
+    padding: 0px;
     border-radius: 8px;
 }
