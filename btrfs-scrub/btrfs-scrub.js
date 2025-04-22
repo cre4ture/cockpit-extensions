@@ -1,13 +1,29 @@
 document.addEventListener("DOMContentLoaded", function () {
+    let mountPoint = "/mnt/diskdata"; // Default value
+
+    function fetchMountPoint() {
+        return cockpit.spawn(["findmnt", "-n", "-o", "TARGET", "-t", "btrfs"])
+            .then(data => {
+                mountPoint = data.trim();
+                document.getElementById("mount-point-info").innerText = `Mount Point: ${mountPoint}`;
+            })
+            .catch(error => {
+                console.error("Error determining mount point:", error);
+                alert("Failed to determine mount point. Using default: " + mountPoint);
+                document.getElementById("mount-point-info").innerText = `Mount Point: ${mountPoint} (default)`;
+            });
+    }
+
     function fetchScrubStatus() {
-        cockpit.spawn(["btrfs", "scrub", "status", "/mnt/diskdata"], { superuser: true })
+        cockpit.spawn(["btrfs", "scrub", "status", mountPoint], { superuser: true })
             .stream(parseScrubOutput)
             .catch(error => document.getElementById("scrub-output").innerText = "Error fetching status: " + error);
     }
 
     function fetchBalanceStatus() {
-        cockpit.spawn(["btrfs", "balance", "status", "-v", "/mnt/diskdata"], { superuser: true })
+        cockpit.spawn(["btrfs", "balance", "status", "-v", mountPoint], { superuser: true })
             .stream(parseBalanceOutput)
+            .catch(error => document.getElementById("balance-output").innerText = "Error fetching status: " + error);
     }
 
     function parseScrubOutput(data) {
@@ -49,13 +65,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    fetchScrubStatus();
-    fetchBalanceStatus();
-    setInterval(fetchScrubStatus, 10000);
-    setInterval(fetchBalanceStatus, 10000);
+    fetchMountPoint().then(() => {
+        fetchScrubStatus();
+        fetchBalanceStatus();
+        setInterval(fetchScrubStatus, 10000);
+        setInterval(fetchBalanceStatus, 10000);
+    });
 
     document.getElementById("start-scrub-button").addEventListener("click", function () {
-        cockpit.spawn(["btrfs", "scrub", "start", "/mnt/diskdata"], { superuser: true })
+        cockpit.spawn(["btrfs", "scrub", "start", mountPoint], { superuser: true })
             .then(() => {
                 alert("Scrub started successfully");
                 fetchScrubStatus();
@@ -64,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     document.getElementById("stop-scrub-button").addEventListener("click", function () {
-        cockpit.spawn(["btrfs", "scrub", "cancel", "/mnt/diskdata"], { superuser: true })
+        cockpit.spawn(["btrfs", "scrub", "cancel", mountPoint], { superuser: true })
             .then(() => {
                 alert("Scrub stopped successfully");
                 fetchScrubStatus();
@@ -73,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     document.getElementById("resume-scrub-button").addEventListener("click", function () {
-        cockpit.spawn(["btrfs", "scrub", "resume", "/mnt/diskdata"], { superuser: true })
+        cockpit.spawn(["btrfs", "scrub", "resume", mountPoint], { superuser: true })
             .then(() => {
                 alert("Scrub resumed successfully");
                 fetchScrubStatus();
