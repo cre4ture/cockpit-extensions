@@ -14,16 +14,25 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
+    function errorToJson(error) {
+        const errorMessage = error.message || JSON.stringify(error, null, 2);
+        return errorMessage;
+    }
+
     function fetchScrubStatus() {
         cockpit.spawn(["btrfs", "scrub", "status", mountPoint], { superuser: true })
             .stream(parseScrubOutput)
-            .catch(error => document.getElementById("scrub-output").innerText = "Error fetching status: " + error);
+            .catch(error => document.getElementById("scrub-output").innerText = "Error fetching status: " + errorToJson(error));
     }
 
     function fetchBalanceStatus() {
         cockpit.spawn(["btrfs", "balance", "status", "-v", mountPoint], { superuser: true })
             .stream(parseBalanceOutput)
-            .catch(error => document.getElementById("balance-output").innerText = "Error fetching status: " + error);
+            .catch(error => {
+                if (error.exit_status != 1) { // igore exit status 1 - seems to be normal  during balance?
+                    document.getElementById("balance-output").innerText += "Error fetching status: " + errorToJson(error);
+                }
+            });
     }
 
     function parseScrubOutput(data) {
