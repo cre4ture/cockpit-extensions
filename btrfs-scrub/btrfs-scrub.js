@@ -52,7 +52,9 @@ document.addEventListener("DOMContentLoaded", function () {
             startButton.disabled = true;
             stopButton.disabled = false;
             resumeButton.disabled = true;
-        } else if (data.includes("paused") || data.includes("aborted")) {
+        } else if (data.includes("paused")
+            || data.includes("aborted")
+            || data.includes("interrupted")) {
             startButton.disabled = false;
             stopButton.disabled = true;
             resumeButton.disabled = false;
