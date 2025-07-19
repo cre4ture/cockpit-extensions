@@ -10,6 +10,16 @@ As those extensions are currently used only by myself, they might contains speci
 But if you like to use them for your usecase, you should be able to easily adapt these.
 I'm also happy for Pull Requests that improve these aspects.
 
+# Installation
+
+```
+mkdir -p ~/.local/share/cockpit
+cd ~/.local/share/cockpit
+git clone https://github.com/cre4ture/cockpit-extensions.git .
+```
+
+After this, refresh the cockpit page in your browser and it should already have some new entries in the left hand side panel.
+
 # Screenshots
 
 ![image](https://github.com/user-attachments/assets/8e5312cc-052c-48c1-88ad-08ccb1c69bae)
