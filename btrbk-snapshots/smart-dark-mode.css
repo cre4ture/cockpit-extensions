@@ -4,22 +4,22 @@
         color: #ffffff;
     }
 
-    .pf-v5-c-page__main-section {
+    .pf-v6-c-page__main-section {
         background-color: #2e2e2e;
     }
     
-    .pf-v5-c-card {
+    .pf-v6-c-card {
         background-color: #3e3e3e;
         color: #ffffff;
         border: 1px solid #444444;
     }
 
-    .pf-v5-c-card__title {
+    .pf-v6-c-card__title {
         background-color: #333333;
         color: #ffffff;
     }
 
-    .pf-v5-c-card__body {
+    .pf-v6-c-card__body {
         color: #ffffff;
         padding: 15px;
     }

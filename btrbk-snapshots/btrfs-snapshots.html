@@ -8,29 +8,26 @@
     <link rel="stylesheet" href="../system/overview.css">
     <link rel="stylesheet" href="smart-dark-mode.css">
 </head>
-<body class="pf-v5-m-tabular-nums">
+<body class="pf-v6-m-tabular-nums">
     <div class="ct-page-fill" id="overview">
-        <div class="pf-v5-c-page">
-            <main class="pf-v5-c-page__main" tabindex="-1">
-                <section class="pf-v5-c-page__main-section pf-m-no-padding pf-m-light"></section>
-                <section class="pf-v5-c-page__main-section pf-m-padding pf-m-light ct-overview-header">
-                    <div class="ct-overview-header-hostname">
-                        <h1>BTRBK Snapshots</h1>
-                        <!-- Placeholder for global number of snapshots -->
-                        <div id="global-snapshot-count"></div>
-                    </div>
-                </section>
-                <section class="pf-v5-c-page__main-section">
-                    <div class="pf-v5-l-gallery pf-m-gutter ct-system-overview" id="snapshot-list">
-                        <!-- Snapshot list will be dynamically generated here -->
-                    </div>
-                </section>
-            </main>
+        <div class="pf-v6-c-page no-masthead-sidebar">
+            <section class="pf-v6-c-page__main-section ct-overview-header">
+                <div class="ct-overview-header-hostname">
+                    <h1>BTRBK Snapshots</h1>
+                    <!-- Placeholder for global number of snapshots -->
+                    <div id="global-snapshot-count"></div>
+                </div>
+            </section>
+            <section class="pf-v6-c-page__main-section">
+                <div class="pf-v6-l-gallery pf-m-gutter ct-system-overview" id="snapshot-list">
+                    <!-- Snapshot list will be dynamically generated here -->
+                </div>
+            </section>
         </div>
     </div>
     <!-- Full-screen card container -->
     <div id="fullscreen-card-container" class="hidden">
-        <button id="close-fullscreen-card">Close</button>
+        <button id="close-fullscreen-card" class="pf-v6-c-button pf-m-plain">Close</button>
         <div id="fullscreen-card-content"></div>
     </div>
 </body>

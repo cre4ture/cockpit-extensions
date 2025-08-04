@@ -4,30 +4,34 @@
     color: #ffffff;
   }
 
-  .pf-v5-c-page__main-section {
+  .pf-v6-c-page__main-section {
     background-color: #2e2e2e;
   }
 
-  .pf-v5-c-card {
+  .pf-v6-c-card {
     background-color: #3e3e3e;
     color: #ffffff;
   }
 
-  .pf-v5-c-card__title-text {
+  .pf-v6-c-card__title-text {
     color: #ffffff;
   }
 
-  .pf-v5-c-card__body {
+  .pf-v6-c-card__body {
     color: #ffffff;
   }
 
-  .pf-v5-c-alert {
+  .pf-v6-c-alert {
     background-color: #3e3e3e;
     color: #ffffff;
   }
 
-  .pf-v5-c-alert__description a {
+  .pf-v6-c-alert__description a {
     color: #4e9eff;
+  }
+
+  .pf-v6-c-button {
+    margin: 0.25rem;
   }
 
   /* Add any other dark mode styles here */
@@ -35,4 +39,10 @@
 
 .full-width-progress {
     width: 100%;
+}
+
+.pf-v6-c-card__actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
 }

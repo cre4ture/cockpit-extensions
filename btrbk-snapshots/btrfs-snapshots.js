@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function() {
         for (const target of sortedTargets) {
             const targetDiv = createTargetDiv(target);
             const snapshotBody = document.createElement("div");
-            snapshotBody.className = "pf-v5-c-card__body";
+            snapshotBody.className = "pf-v6-c-card__body";
             const groupedSnapshots = groupByDate(allSnapshots[target], target);
 
             // Calculate total snapshots
@@ -71,10 +71,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function createTargetDiv(target) {
         const targetDiv = document.createElement("div");
-        targetDiv.className = "pf-v5-c-card";
+        targetDiv.className = "pf-v6-c-card";
 
         const targetHeader = document.createElement("div");
-        targetHeader.className = "pf-v5-c-card__header";
+        targetHeader.className = "pf-v6-c-card__header";
 
         // Make the title clickable
         const targetTitle = document.createElement("h2");

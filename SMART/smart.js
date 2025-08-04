@@ -7,12 +7,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 container.innerHTML = ""; // Clear existing cards
                 drives.forEach(drive => {
                     const card = document.createElement("div");
-                    card.className = "pf-v5-c-card";
+                    card.className = "pf-v6-c-card";
                     card.innerHTML = `
-                        <div class="pf-v5-c-card__title">
-                            <div id="${drive}-status" class="pf-v5-c-card__title-text">S.M.A.R.T. Status for /dev/${drive}</div>
+                        <div class="pf-v6-c-card__title">
+                            <div id="${drive}-status" class="pf-v6-c-card__title-text">S.M.A.R.T. Status for /dev/${drive}</div>
                         </div>
-                        <div class="pf-v5-c-card__body">
+                        <div class="pf-v6-c-card__body">
                             <div id="${drive}-output">Fetching status...</div>
                         </div>
                     `;
