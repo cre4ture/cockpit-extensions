@@ -25,6 +25,32 @@
     }
 }
 
+/* Ensure proper scrolling behavior */
+html, body {
+    height: 100%;
+    overflow: auto;
+}
+
+.ct-page-fill {
+    min-height: 100vh;
+    overflow: auto;
+}
+
+.pf-v6-c-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.pf-v6-c-page__main-section {
+    flex: 1;
+    overflow: visible;
+}
+
+.pf-v6-l-gallery {
+    overflow: visible;
+}
+
 #smart-output {
     background-color: #2a2a2a;
     color: #ffffff;
