@@ -11,6 +11,7 @@
   .pf-v6-c-card {
     background-color: #3e3e3e;
     color: #ffffff;
+    border: 1px solid #555;
   }
 
   .pf-v6-c-card__title-text {
@@ -34,17 +35,95 @@
     margin: 0.25rem;
   }
 
-  /* Add any other dark mode styles here */
+  .pf-v6-c-button.pf-m-primary {
+    background-color: #0066cc;
+    border-color: #0066cc;
+    color: #ffffff;
+  }
+
+  .pf-v6-c-button.pf-m-primary:hover {
+    background-color: #004499;
+    border-color: #004499;
+  }
+
+  .pf-v6-c-button.pf-m-secondary {
+    background-color: #444;
+    border-color: #666;
+    color: #ffffff;
+  }
+
+  .pf-v6-c-button.pf-m-secondary:hover {
+    background-color: #555;
+    border-color: #777;
+  }
+
+  .pf-v6-c-button:disabled {
+    background-color: #333;
+    border-color: #444;
+    color: #666;
+    cursor: not-allowed;
+  }
+
+  pre {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    border: 1px solid #555;
+    padding: 1rem;
+    border-radius: 4px;
+  }
+
+  progress {
+    background-color: #2a2a2a;
+    border: 1px solid #555;
+  }
+
+  progress::-webkit-progress-bar {
+    background-color: #2a2a2a;
+    border-radius: 4px;
+  }
+
+  progress::-webkit-progress-value {
+    background-color: #0066cc;
+    border-radius: 4px;
+  }
+
+  progress::-moz-progress-bar {
+    background-color: #0066cc;
+    border-radius: 4px;
+  }
 }
 
 .full-width-progress {
     width: 100%;
+    margin: 1rem 0;
+    height: 20px;
 }
 
 .pf-v6-c-card__actions {
     display: flex;
     gap: 0.5rem;
     margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Layout improvements for multiple mount points */
+.pf-v6-l-gallery.pf-m-gutter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.pf-v6-l-gallery.pf-m-gutter > .pf-v6-l-gallery {
+    display: flex;
+    width: 100%;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.pf-v6-c-card {
+    flex: 1;
+    min-width: 400px;
+    margin-bottom: 1rem;
 }
 
 /* Ensure proper scrolling behavior */

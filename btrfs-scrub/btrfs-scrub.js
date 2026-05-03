@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function createUIForMountPoints() {
-        const gallery = document.querySelector(".pf-v5-l-gallery");
+        const gallery = document.querySelector(".pf-v6-l-gallery");
         // Clear existing cards (keep the mount point info)
         gallery.innerHTML = '';
         
@@ -51,43 +51,45 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function createMountPointCards(mountPoint, index) {
-        const gallery = document.querySelector(".pf-v5-l-gallery");
+        const gallery = document.querySelector(".pf-v6-l-gallery");
         
         // Create a row container for this mount point
         const rowContainer = document.createElement('div');
-        rowContainer.className = 'pf-v5-l-gallery pf-m-gutter';
+        rowContainer.className = 'pf-v6-l-gallery pf-m-gutter';
         rowContainer.style.width = '100%';
         rowContainer.style.marginBottom = '1rem';
         
         // Create scrub card
         const scrubCard = document.createElement('div');
-        scrubCard.className = 'pf-v5-c-card';
+        scrubCard.className = 'pf-v6-c-card';
         scrubCard.style.minWidth = '400px';
         scrubCard.style.flex = '1';
         scrubCard.style.marginRight = '1rem';
         scrubCard.innerHTML = `
-            <div class="pf-v5-c-card__title">
-                <div class="pf-v5-c-card__title-text">Scrub Status - ${mountPoint}</div>
+            <div class="pf-v6-c-card__title">
+                <div class="pf-v6-c-card__title-text">Scrub Status - ${mountPoint}</div>
             </div>
-            <div class="pf-v5-c-card__body">
+            <div class="pf-v6-c-card__body">
                 <pre id="scrub-output-${index}" style="white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">Fetching status...</pre>
                 <progress id="scrub-progress-${index}" class="full-width-progress" value="0" max="100"></progress>
-                <button id="start-scrub-button-${index}">Start Scrub</button>
-                <button id="stop-scrub-button-${index}" disabled>Stop Scrub</button>
-                <button id="resume-scrub-button-${index}" disabled>Resume Scrub</button>
+                <div class="pf-v6-c-card__actions">
+                    <button id="start-scrub-button-${index}" class="pf-v6-c-button pf-m-primary">Start Scrub</button>
+                    <button id="stop-scrub-button-${index}" class="pf-v6-c-button pf-m-secondary" disabled>Stop Scrub</button>
+                    <button id="resume-scrub-button-${index}" class="pf-v6-c-button pf-m-secondary" disabled>Resume Scrub</button>
+                </div>
             </div>
         `;
         
         // Create balance card
         const balanceCard = document.createElement('div');
-        balanceCard.className = 'pf-v5-c-card';
+        balanceCard.className = 'pf-v6-c-card';
         balanceCard.style.minWidth = '400px';
         balanceCard.style.flex = '1';
         balanceCard.innerHTML = `
-            <div class="pf-v5-c-card__title">
-                <div class="pf-v5-c-card__title-text">Balance Status - ${mountPoint}</div>
+            <div class="pf-v6-c-card__title">
+                <div class="pf-v6-c-card__title-text">Balance Status - ${mountPoint}</div>
             </div>
-            <div class="pf-v5-c-card__body">
+            <div class="pf-v6-c-card__body">
                 <pre id="balance-output-${index}" style="white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">Fetching status...</pre>
                 <progress id="balance-progress-${index}" class="full-width-progress" value="0" max="100"></progress>
             </div>
