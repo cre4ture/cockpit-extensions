@@ -1,0 +1,9 @@
+{
+    "version": 0,
+    "tools": {
+        "net-spider": {
+            "label": "net-spider MCU GPIO",
+            "path": "net-spider.html"
+        }
+    }
+}

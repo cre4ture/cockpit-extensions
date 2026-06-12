@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>net-spider MCU GPIO</title>
+    <meta charset="utf-8">
+    <script src="../base1/cockpit.js"></script>
+    <script src="net-spider.js"></script>
+    <link rel="stylesheet" href="../system/overview.css">
+    <link rel="stylesheet" href="net-spider-dark-mode.css">
+</head>
+<body class="pf-v6-m-tabular-nums">
+    <div class="ct-page-fill" id="overview">
+        <div class="pf-v6-c-page no-masthead-sidebar">
+            <main class="pf-v6-c-page__main" tabindex="-1">
+                <section class="pf-v6-c-page__main-section ct-overview-header">
+                    <div class="ct-overview-header-hostname">
+                        <h1>net-spider MCU GPIO Console</h1>
+                        <div id="banner-status" class="banner-status">Ready</div>
+                    </div>
+                </section>
+
+                <section class="pf-v6-c-page__main-section">
+                    <div class="layout-grid">
+                        <div class="pf-v6-c-card">
+                            <div class="pf-v6-c-card__title">
+                                <div class="pf-v6-c-card__title-text">MCU Profiles</div>
+                            </div>
+                            <div class="pf-v6-c-card__body">
+                                <div id="device-list" class="device-list"></div>
+                                <div class="button-row compact-row">
+                                    <button id="add-device" class="pf-v6-c-button pf-m-primary">Add MCU</button>
+                                    <button id="delete-device" class="pf-v6-c-button pf-m-danger">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pf-v6-c-card">
+                            <div class="pf-v6-c-card__title">
+                                <div class="pf-v6-c-card__title-text">Connection & Metadata</div>
+                            </div>
+                            <div class="pf-v6-c-card__body">
+                                <div class="field-grid">
+                                    <label>Name</label>
+                                    <input id="device-name" type="text" placeholder="Boiler Controller" />
+
+                                    <label>IP</label>
+                                    <input id="device-ip" type="text" placeholder="192.168.1.200" />
+
+                                    <label>Port</label>
+                                    <input id="device-port" type="number" min="1" max="65535" placeholder="5000" />
+                                </div>
+
+                                <div class="button-row">
+                                    <button id="save-device" class="pf-v6-c-button pf-m-primary">Save Profile</button>
+                                    <button id="connect-device" class="pf-v6-c-button pf-m-secondary">Connect</button>
+                                    <button id="refresh-status" class="pf-v6-c-button pf-m-secondary">Fetch STATUS</button>
+                                </div>
+
+                                <pre id="raw-response" class="raw-response">No status fetched yet.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="pf-v6-c-page__main-section">
+                    <div class="pf-v6-c-card">
+                        <div class="pf-v6-c-card__title">
+                            <div class="pf-v6-c-card__title-text">GPIO Meaning & Controls</div>
+                        </div>
+                        <div class="pf-v6-c-card__body">
+                            <div id="pin-grid" class="pin-grid"></div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
