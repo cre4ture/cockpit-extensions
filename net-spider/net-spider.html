@@ -16,10 +16,18 @@
                     <div class="ct-overview-header-hostname">
                         <h1>net-spider MCU GPIO Console</h1>
                         <div id="banner-status" class="banner-status">Ready</div>
+                        <div class="top-tabs" role="tablist" aria-label="Page views">
+                            <button id="tab-overview" class="tab-button is-active" role="tab" aria-selected="true">Overview</button>
+                            <button id="tab-config" class="tab-button" role="tab" aria-selected="false">Config & Advanced</button>
+                        </div>
                     </div>
                 </section>
 
-                <section class="pf-v6-c-page__main-section">
+                <section id="overview-view" class="pf-v6-c-page__main-section">
+                    <div id="mcu-overview-list" class="mcu-overview-list"></div>
+                </section>
+
+                <section id="config-view" class="pf-v6-c-page__main-section is-hidden">
                     <div class="layout-grid">
                         <div class="pf-v6-c-card">
                             <div class="pf-v6-c-card__title">
@@ -36,7 +44,7 @@
 
                         <div class="pf-v6-c-card">
                             <div class="pf-v6-c-card__title">
-                                <div class="pf-v6-c-card__title-text">Connection & Metadata</div>
+                                <div class="pf-v6-c-card__title-text">Configuration & Manual Testing</div>
                             </div>
                             <div class="pf-v6-c-card__body">
                                 <div class="field-grid">
@@ -60,15 +68,12 @@
                             </div>
                         </div>
                     </div>
-                </section>
-
-                <section class="pf-v6-c-page__main-section">
                     <div class="pf-v6-c-card">
                         <div class="pf-v6-c-card__title">
-                            <div class="pf-v6-c-card__title-text">GPIO Meaning & Controls</div>
+                            <div class="pf-v6-c-card__title-text">GPIO Meaning Configuration</div>
                         </div>
                         <div class="pf-v6-c-card__body">
-                            <div id="pin-grid" class="pin-grid"></div>
+                            <div id="pin-config-grid" class="pin-grid"></div>
                         </div>
                     </div>
                 </section>

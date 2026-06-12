@@ -24,15 +24,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let profiles = loadProfiles();
     let selectedId = profiles[0].id;
+    let activeTab = "overview";
 
     const refs = {
         bannerStatus: document.getElementById("banner-status"),
+        tabOverview: document.getElementById("tab-overview"),
+        tabConfig: document.getElementById("tab-config"),
+        overviewView: document.getElementById("overview-view"),
+        configView: document.getElementById("config-view"),
+        mcuOverviewList: document.getElementById("mcu-overview-list"),
         deviceList: document.getElementById("device-list"),
         deviceName: document.getElementById("device-name"),
         deviceIp: document.getElementById("device-ip"),
         devicePort: document.getElementById("device-port"),
         rawResponse: document.getElementById("raw-response"),
-        pinGrid: document.getElementById("pin-grid"),
+        pinConfigGrid: document.getElementById("pin-config-grid"),
         addDevice: document.getElementById("add-device"),
         deleteDevice: document.getElementById("delete-device"),
         saveDevice: document.getElementById("save-device"),
@@ -40,6 +46,12 @@ document.addEventListener("DOMContentLoaded", function () {
         refreshStatus: document.getElementById("refresh-status")
     };
 
+    refs.tabOverview.addEventListener("click", function () {
+        switchTab("overview");
+    });
+    refs.tabConfig.addEventListener("click", function () {
+        switchTab("config");
+    });
     refs.addDevice.addEventListener("click", onAddDevice);
     refs.deleteDevice.addEventListener("click", onDeleteDevice);
     refs.saveDevice.addEventListener("click", onSaveDevice);
@@ -127,10 +139,106 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function renderAll() {
+        renderTabs();
+        renderOverviewCards();
         renderDeviceList();
         renderDeviceForm();
-        renderPinCards();
+        renderConfigPinCards();
         renderBanner();
+    }
+
+    function renderTabs() {
+        const onOverview = activeTab === "overview";
+        refs.tabOverview.classList.toggle("is-active", onOverview);
+        refs.tabConfig.classList.toggle("is-active", !onOverview);
+        refs.tabOverview.setAttribute("aria-selected", onOverview ? "true" : "false");
+        refs.tabConfig.setAttribute("aria-selected", onOverview ? "false" : "true");
+        refs.overviewView.classList.toggle("is-hidden", !onOverview);
+        refs.configView.classList.toggle("is-hidden", onOverview);
+    }
+
+    function switchTab(tabName) {
+        activeTab = tabName;
+        renderTabs();
+    }
+
+    function renderOverviewCards() {
+        refs.mcuOverviewList.innerHTML = "";
+
+        profiles.forEach(profile => {
+            const namedPins = profile.pins.filter(pin => pin.name && pin.name.trim() !== "");
+            const card = document.createElement("div");
+            card.className = "mcu-overview-card";
+
+            card.innerHTML = `
+                <div class="mcu-overview-head">
+                    <div>
+                        <div class="pin-title">${escapeHtml(profile.name)}</div>
+                        <div class="mcu-overview-meta">${escapeHtml(profile.ip + ":" + profile.port)} | last STATUS: ${profile.lastSeen ? escapeHtml(new Date(profile.lastSeen).toLocaleString()) : "never"}</div>
+                    </div>
+                    <div class="button-row compact-row">
+                        <button class="pf-v6-c-button pf-m-secondary" data-role="connect-profile" data-profile-id="${profile.id}">Connect</button>
+                        <button class="pf-v6-c-button pf-m-primary" data-role="status-profile" data-profile-id="${profile.id}">Fetch STATUS</button>
+                        <button class="pf-v6-c-button pf-m-secondary" data-role="send-all" data-profile-id="${profile.id}" data-state="ON">ALL ON</button>
+                        <button class="pf-v6-c-button pf-m-secondary" data-role="send-all" data-profile-id="${profile.id}" data-state="OFF">ALL OFF</button>
+                        <button class="pf-v6-c-button pf-m-secondary" data-role="send-all" data-profile-id="${profile.id}" data-state="NEUTRAL">ALL NEUTRAL</button>
+                    </div>
+                </div>
+                <div class="named-pin-list"></div>
+            `;
+
+            const namedPinList = card.querySelector(".named-pin-list");
+            if (namedPins.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "named-pin-row";
+                empty.innerHTML = `<div class="named-pin-sub">No named GPIOs configured for this MCU. Configure names in the Config & Advanced tab.</div>`;
+                namedPinList.appendChild(empty);
+            } else {
+                namedPins.forEach(pin => {
+                    const row = document.createElement("div");
+                    row.className = "named-pin-row";
+                    const stateClass = stateClassName(pin.lastState);
+                    row.innerHTML = `
+                        <div class="named-pin-top">
+                            <div>
+                                <div class="named-pin-title">${escapeHtml(pin.name)}</div>
+                                <div class="named-pin-sub">${pin.slot} / ${pin.gpio}</div>
+                            </div>
+                            <div class="pin-state ${stateClass}">${pin.lastState}</div>
+                        </div>
+                        <div class="named-pin-meaning">${escapeHtml(formatMeanings(pin))}</div>
+                        <div class="button-row compact-row">
+                            <button class="pf-v6-c-button pf-m-secondary" data-role="send-pin" data-profile-id="${profile.id}" data-slot="${pin.slot}" data-state="ON">ON</button>
+                            <button class="pf-v6-c-button pf-m-secondary" data-role="send-pin" data-profile-id="${profile.id}" data-slot="${pin.slot}" data-state="OFF">OFF</button>
+                            <button class="pf-v6-c-button pf-m-secondary" data-role="send-pin" data-profile-id="${profile.id}" data-slot="${pin.slot}" data-state="NEUTRAL">NEUTRAL</button>
+                        </div>
+                    `;
+                    namedPinList.appendChild(row);
+                });
+            }
+
+            refs.mcuOverviewList.appendChild(card);
+        });
+
+        refs.mcuOverviewList.querySelectorAll("button[data-role='connect-profile']").forEach(button => {
+            button.addEventListener("click", onConnect);
+        });
+        refs.mcuOverviewList.querySelectorAll("button[data-role='status-profile']").forEach(button => {
+            button.addEventListener("click", onFetchStatus);
+        });
+        refs.mcuOverviewList.querySelectorAll("button[data-role='send-pin']").forEach(button => {
+            button.addEventListener("click", onSendPinCommand);
+        });
+        refs.mcuOverviewList.querySelectorAll("button[data-role='send-all']").forEach(button => {
+            button.addEventListener("click", onSendAllCommand);
+        });
+    }
+
+    function formatMeanings(pin) {
+        const on = pin.meanings.ON ? pin.meanings.ON : "(not defined)";
+        const off = pin.meanings.OFF ? pin.meanings.OFF : "(not defined)";
+        const neutral = pin.meanings.NEUTRAL ? pin.meanings.NEUTRAL : "(not defined)";
+        return "ON -> " + on + " | OFF -> " + off + " | NEUTRAL -> " + neutral;
     }
 
     function renderDeviceList() {
@@ -155,9 +263,9 @@ document.addEventListener("DOMContentLoaded", function () {
         refs.rawResponse.textContent = selected.lastRawStatus || "No status fetched yet.";
     }
 
-    function renderPinCards() {
+    function renderConfigPinCards() {
         const selected = getSelected();
-        refs.pinGrid.innerHTML = "";
+        refs.pinConfigGrid.innerHTML = "";
 
         selected.pins.forEach(pin => {
             const card = document.createElement("div");
@@ -193,7 +301,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
             `;
 
-            refs.pinGrid.appendChild(card);
+            refs.pinConfigGrid.appendChild(card);
         });
 
         const allCard = document.createElement("div");
@@ -212,17 +320,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 <button id="set-all-button" class="pf-v6-c-button pf-m-primary">Send ALL</button>
             </div>
         `;
-        refs.pinGrid.appendChild(allCard);
+        refs.pinConfigGrid.appendChild(allCard);
 
-        refs.pinGrid.querySelectorAll("input[data-role='name']").forEach(input => {
+        refs.pinConfigGrid.querySelectorAll("input[data-role='name']").forEach(input => {
             input.addEventListener("change", onPinConfigChange);
         });
 
-        refs.pinGrid.querySelectorAll("input[data-role='meaning']").forEach(input => {
+        refs.pinConfigGrid.querySelectorAll("input[data-role='meaning']").forEach(input => {
             input.addEventListener("change", onPinConfigChange);
         });
 
-        refs.pinGrid.querySelectorAll("button[data-role='send-pin']").forEach(button => {
+        refs.pinConfigGrid.querySelectorAll("button[data-role='send-pin']").forEach(button => {
             button.addEventListener("click", onSendPinCommand);
         });
 
@@ -262,6 +370,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         return pin.meanings[state];
+    }
+
+    function getProfileById(profileId) {
+        return profiles.find(profile => profile.id === profileId) || null;
+    }
+
+    function getProfileFromEventOrSelected(event) {
+        const profileId = event && event.target && event.target.dataset ? event.target.dataset.profileId : null;
+        if (profileId) {
+            const fromEvent = getProfileById(profileId);
+            if (fromEvent) {
+                selectedId = fromEvent.id;
+                return fromEvent;
+            }
+        }
+
+        return getSelected();
     }
 
     function onAddDevice() {
@@ -334,8 +459,8 @@ document.addEventListener("DOMContentLoaded", function () {
         saveProfiles();
     }
 
-    async function onConnect() {
-        const selected = getSelected();
+    async function onConnect(event) {
+        const selected = getProfileFromEventOrSelected(event);
         try {
             setBanner("Connecting to " + selected.ip + ":" + selected.port + " ...");
             const response = await sendCommand(selected, "HELP");
@@ -351,8 +476,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    async function onFetchStatus() {
-        const selected = getSelected();
+    async function onFetchStatus(event) {
+        const selected = getProfileFromEventOrSelected(event);
         try {
             setBanner("Fetching STATUS from " + selected.name + " ...");
             const response = await sendCommand(selected, "STATUS");
@@ -370,10 +495,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function onSendPinCommand(event) {
-        const selected = getSelected();
+        const selected = getProfileFromEventOrSelected(event);
         const slot = event.target.dataset.slot;
-        const select = refs.pinGrid.querySelector("select[data-role='set-state'][data-slot='" + slot + "']");
-        const desiredState = select.value;
+        let desiredState = event.target.dataset.state;
+
+        if (!desiredState) {
+            const parent = event.target.closest(".pin-card") || event.target.parentElement;
+            const select = parent.querySelector("select[data-role='set-state'][data-slot='" + slot + "']");
+            desiredState = select ? select.value : null;
+        }
+
+        if (!desiredState) {
+            refs.rawResponse.textContent = "Could not determine desired state for " + slot;
+            return;
+        }
 
         try {
             setBanner("Sending " + slot + " " + desiredState + " ...");
@@ -392,9 +527,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    async function onSendAllCommand() {
-        const selected = getSelected();
-        const desiredState = document.getElementById("set-all-state").value;
+    async function onSendAllCommand(event) {
+        const selected = getProfileFromEventOrSelected(event);
+        const desiredState = (event && event.target && event.target.dataset && event.target.dataset.state)
+            ? event.target.dataset.state
+            : document.getElementById("set-all-state").value;
 
         try {
             setBanner("Sending ALL " + desiredState + " ...");
