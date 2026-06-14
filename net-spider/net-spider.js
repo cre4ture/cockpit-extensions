@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const STORAGE_KEY = "netSpiderMcuProfilesV1";
+    const CONFIG_RELATIVE_DIR = ".config/cockpit/net-spider";
+    const CONFIG_FILE_NAME = "profiles.json";
     const PIN_SLOTS = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"];
     const SLOT_TO_GPIO = {
         P1: "GP2",
@@ -22,9 +23,12 @@ document.addEventListener("DOMContentLoaded", function () {
         GP9: "P8"
     };
 
-    let profiles = loadProfiles();
+    let profiles = [createProfile(1)];
     let selectedId = profiles[0].id;
     let activeTab = "overview";
+    const switchCooldowns = {};
+    let configDirectory = null;
+    let configFilePath = null;
 
     const refs = {
         bannerStatus: document.getElementById("banner-status"),
@@ -58,13 +62,22 @@ document.addEventListener("DOMContentLoaded", function () {
     refs.connectDevice.addEventListener("click", onConnect);
     refs.refreshStatus.addEventListener("click", onFetchStatus);
 
-    renderAll();
+    initializePage();
+
+    async function initializePage() {
+        await loadProfilesFromHost();
+        renderAll();
+    }
 
     function defaultPin(slot) {
         return {
             slot,
             gpio: SLOT_TO_GPIO[slot],
             name: "",
+            mode: "raw",
+            switchOnGpio: "ON",
+            switchOffGpio: "OFF",
+            switchOnDelay: 5,
             meanings: {
                 ON: "",
                 OFF: "",
@@ -86,20 +99,34 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    function loadProfiles() {
-        try {
-            const fromStorage = localStorage.getItem(STORAGE_KEY);
-            if (fromStorage) {
-                const parsed = JSON.parse(fromStorage);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    return parsed.map(normalizeProfile);
-                }
-            }
-        } catch (err) {
-            console.warn("Could not load net-spider profiles", err);
+    async function resolveConfigPaths() {
+        if (configFilePath && configDirectory) {
+            return;
         }
 
-        return [createProfile(1)];
+        const user = await cockpit.user();
+        configDirectory = user.home + "/" + CONFIG_RELATIVE_DIR;
+        configFilePath = configDirectory + "/" + CONFIG_FILE_NAME;
+    }
+
+    async function loadProfilesFromHost() {
+        await resolveConfigPaths();
+        await cockpit.spawn(["mkdir", "-p", configDirectory]);
+
+        const fileHandle = cockpit.file(configFilePath, { syntax: JSON });
+        const parsed = await fileHandle.read();
+
+        if (Array.isArray(parsed) && parsed.length > 0) {
+            profiles = parsed.map(normalizeProfile);
+            selectedId = profiles[0].id;
+            setBanner("Loaded profiles from host file");
+            return;
+        }
+
+        profiles = [createProfile(1)];
+        selectedId = profiles[0].id;
+        await saveProfiles();
+        setBanner("Created new host profile file");
     }
 
     function normalizeProfile(profile, idx) {
@@ -115,6 +142,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     slot,
                     gpio: SLOT_TO_GPIO[slot],
                     name: source.name || "",
+                    mode: source.mode === "switch" ? "switch" : "raw",
+                    switchOnGpio: ["ON", "OFF", "NEUTRAL"].includes(source.switchOnGpio) ? source.switchOnGpio : "ON",
+                    switchOffGpio: ["ON", "OFF", "NEUTRAL"].includes(source.switchOffGpio) ? source.switchOffGpio : "OFF",
+                    switchOnDelay: typeof source.switchOnDelay === "number" && source.switchOnDelay >= 0 ? source.switchOnDelay : 5,
                     meanings: {
                         ON: sourceMeanings.ON || "",
                         OFF: sourceMeanings.OFF || "",
@@ -130,8 +161,10 @@ document.addEventListener("DOMContentLoaded", function () {
         return safe;
     }
 
-    function saveProfiles() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles));
+    async function saveProfiles() {
+        await resolveConfigPaths();
+        await cockpit.spawn(["mkdir", "-p", configDirectory]);
+        await cockpit.file(configFilePath, { syntax: JSON }).replace(profiles);
     }
 
     function getSelected() {
@@ -197,21 +230,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 namedPins.forEach(pin => {
                     const row = document.createElement("div");
                     row.className = "named-pin-row";
-                    const stateClass = stateClassName(pin.lastState);
+                    const semState = pinSemanticState(pin);
+                    const stateClass = pinSemanticStateClass(pin);
+                    let controlsHtml;
+                    if (pin.mode === "switch") {
+                        controlsHtml = `
+                            <div class="button-row compact-row">
+                                <button class="pf-v6-c-button pf-m-secondary" data-role="send-pin" data-profile-id="${profile.id}" data-slot="${pin.slot}" data-state="${pin.switchOnGpio}" data-switch-role="on">ON</button>
+                                <button class="pf-v6-c-button pf-m-secondary" data-role="send-pin" data-profile-id="${profile.id}" data-slot="${pin.slot}" data-state="${pin.switchOffGpio}" data-switch-role="off">OFF</button>
+                            </div>`;
+                    } else {
+                        controlsHtml = `
+                            <div class="button-row compact-row">
+                                <button class="pf-v6-c-button pf-m-secondary" data-role="send-pin" data-profile-id="${profile.id}" data-slot="${pin.slot}" data-state="ON">HIGH</button>
+                                <button class="pf-v6-c-button pf-m-secondary" data-role="send-pin" data-profile-id="${profile.id}" data-slot="${pin.slot}" data-state="OFF">LOW</button>
+                                <button class="pf-v6-c-button pf-m-secondary" data-role="send-pin" data-profile-id="${profile.id}" data-slot="${pin.slot}" data-state="NEUTRAL">NEUTRAL</button>
+                            </div>`;
+                    }
                     row.innerHTML = `
                         <div class="named-pin-top">
                             <div>
                                 <div class="named-pin-title">${escapeHtml(pin.name)}</div>
-                                <div class="named-pin-sub">${pin.slot} / ${pin.gpio}</div>
+                                <div class="named-pin-sub">${pin.slot} / ${pin.gpio}${pin.mode === "switch" ? " &middot; switch" : ""}</div>
                             </div>
-                            <div class="pin-state ${stateClass}">${pin.lastState}</div>
+                            <div class="pin-state ${stateClass}">${escapeHtml(semState)}</div>
                         </div>
                         <div class="named-pin-meaning">${escapeHtml(formatMeanings(pin))}</div>
-                        <div class="button-row compact-row">
-                            <button class="pf-v6-c-button pf-m-secondary" data-role="send-pin" data-profile-id="${profile.id}" data-slot="${pin.slot}" data-state="ON">ON</button>
-                            <button class="pf-v6-c-button pf-m-secondary" data-role="send-pin" data-profile-id="${profile.id}" data-slot="${pin.slot}" data-state="OFF">OFF</button>
-                            <button class="pf-v6-c-button pf-m-secondary" data-role="send-pin" data-profile-id="${profile.id}" data-slot="${pin.slot}" data-state="NEUTRAL">NEUTRAL</button>
-                        </div>
+                        ${controlsHtml}
                     `;
                     namedPinList.appendChild(row);
                 });
@@ -232,13 +277,44 @@ document.addEventListener("DOMContentLoaded", function () {
         refs.mcuOverviewList.querySelectorAll("button[data-role='send-all']").forEach(button => {
             button.addEventListener("click", onSendAllCommand);
         });
+
+        applyAllCooldowns();
     }
 
     function formatMeanings(pin) {
+        if (pin.mode === "switch") {
+            const on = pin.meanings.ON ? pin.meanings.ON : "(not defined)";
+            const off = pin.meanings.OFF ? pin.meanings.OFF : "(not defined)";
+            return "ON (\u2192 GPIO " + gpioStateLabel(pin.switchOnGpio) + "): " + on + " | OFF (\u2192 GPIO " + gpioStateLabel(pin.switchOffGpio) + "): " + off;
+        }
         const on = pin.meanings.ON ? pin.meanings.ON : "(not defined)";
         const off = pin.meanings.OFF ? pin.meanings.OFF : "(not defined)";
         const neutral = pin.meanings.NEUTRAL ? pin.meanings.NEUTRAL : "(not defined)";
-        return "ON -> " + on + " | OFF -> " + off + " | NEUTRAL -> " + neutral;
+        return "GPIO HIGH -> " + on + " | GPIO LOW -> " + off + " | GPIO NEUTRAL -> " + neutral;
+    }
+
+    function gpioStateLabel(state) {
+        if (state === "ON") {
+            return "HIGH";
+        }
+        if (state === "OFF") {
+            return "LOW";
+        }
+        return state;
+    }
+
+    function pinSemanticState(pin) {
+        if (pin.mode === "switch") {
+            if (pin.lastState === pin.switchOnGpio) return "ON";
+            if (pin.lastState === pin.switchOffGpio) return "OFF";
+            return pin.lastState === "UNKNOWN" ? "UNKNOWN" : "?" + pin.lastState + "?";
+        }
+        return gpioStateLabel(pin.lastState);
+    }
+
+    function pinSemanticStateClass(pin) {
+        const s = pinSemanticState(pin);
+        return stateClassName(s);
     }
 
     function renderDeviceList() {
@@ -270,31 +346,64 @@ document.addEventListener("DOMContentLoaded", function () {
         selected.pins.forEach(pin => {
             const card = document.createElement("div");
             card.className = "pin-card";
-            const stateClass = stateClassName(pin.lastState);
+            const displayedState = pinSemanticState(pin);
+            const stateClass = pinSemanticStateClass(pin);
             const stateMeaning = stateMeaningLabel(pin, pin.lastState);
 
+            const isSwitch = pin.mode === "switch";
+            const switchOnSel = (v) => v === pin.switchOnGpio ? " selected" : "";
+            const switchOffSel = (v) => v === pin.switchOffGpio ? " selected" : "";
+            const switchMappingHtml = isSwitch ? `
+                    <label>ON &rarr; GPIO</label>
+                    <select data-role="switch-on-gpio" data-slot="${pin.slot}">
+                        <option value="ON"${switchOnSel("ON")}>GPIO HIGH</option>
+                        <option value="OFF"${switchOnSel("OFF")}>GPIO LOW</option>
+                        <option value="NEUTRAL"${switchOnSel("NEUTRAL")}>GPIO NEUTRAL (hi-Z)</option>
+                    </select>
+                    <label>OFF &rarr; GPIO</label>
+                    <select data-role="switch-off-gpio" data-slot="${pin.slot}">
+                        <option value="ON"${switchOffSel("ON")}>GPIO HIGH</option>
+                        <option value="OFF"${switchOffSel("OFF")}>GPIO LOW</option>
+                        <option value="NEUTRAL"${switchOffSel("NEUTRAL")}>GPIO NEUTRAL (hi-Z)</option>
+                    </select>
+                    <label>Rearm delay (s)</label>
+                    <input type="number" min="0" step="1" data-role="switch-on-delay" data-slot="${pin.slot}" value="${pin.switchOnDelay ?? 5}" placeholder="5" />` : `
+                    <label>GPIO HIGH means</label>
+                    <input type="text" data-role="meaning" data-state="ON" data-slot="${pin.slot}" value="${escapeHtml(pin.meanings.ON)}" placeholder="opened / enabled" />
+                    <label>GPIO LOW means</label>
+                    <input type="text" data-role="meaning" data-state="OFF" data-slot="${pin.slot}" value="${escapeHtml(pin.meanings.OFF)}" placeholder="closed / disabled" />
+                    <label>GPIO NEUTRAL means</label>
+                    <input type="text" data-role="meaning" data-state="NEUTRAL" data-slot="${pin.slot}" value="${escapeHtml(pin.meanings.NEUTRAL)}" placeholder="floating / manual" />`;
             card.innerHTML = `
                 <div class="pin-heading">
                     <div class="pin-title">${pin.slot} / ${pin.gpio}</div>
-                    <div class="pin-state ${stateClass}">${pin.lastState}${stateMeaning ? " -> " + stateMeaning : ""}</div>
+                    <div class="pin-state ${stateClass}">${displayedState}${stateMeaning ? " -> " + stateMeaning : ""}</div>
                 </div>
                 <div class="meaning-grid">
                     <label>Name</label>
                     <input type="text" data-role="name" data-slot="${pin.slot}" value="${escapeHtml(pin.name)}" placeholder="e.g. Main Valve" />
 
-                    <label>ON means</label>
-                    <input type="text" data-role="meaning" data-state="ON" data-slot="${pin.slot}" value="${escapeHtml(pin.meanings.ON)}" placeholder="opened / enabled" />
+                    <label>Mode</label>
+                    <select data-role="mode" data-slot="${pin.slot}">
+                        <option value="raw"${!isSwitch ? " selected" : ""}>Raw (HIGH / LOW / NEUTRAL)</option>
+                        <option value="switch"${isSwitch ? " selected" : ""}>Switch (ON / OFF)</option>
+                    </select>
 
-                    <label>OFF means</label>
-                    <input type="text" data-role="meaning" data-state="OFF" data-slot="${pin.slot}" value="${escapeHtml(pin.meanings.OFF)}" placeholder="closed / disabled" />
+                    ${switchMappingHtml}
 
-                    <label>NEUTRAL means</label>
-                    <input type="text" data-role="meaning" data-state="NEUTRAL" data-slot="${pin.slot}" value="${escapeHtml(pin.meanings.NEUTRAL)}" placeholder="floating / manual" />
+                    <label>${isSwitch ? "ON label" : "HIGH label"}</label>
+                    <input type="text" data-role="meaning" data-state="ON" data-slot="${pin.slot}" value="${escapeHtml(pin.meanings.ON)}" placeholder="e.g. opened" />
+
+                    <label>${isSwitch ? "OFF label" : "LOW label"}</label>
+                    <input type="text" data-role="meaning" data-state="OFF" data-slot="${pin.slot}" value="${escapeHtml(pin.meanings.OFF)}" placeholder="e.g. closed" />
+                    ${!isSwitch ? `
+                    <label>NEUTRAL label</label>
+                    <input type="text" data-role="meaning" data-state="NEUTRAL" data-slot="${pin.slot}" value="${escapeHtml(pin.meanings.NEUTRAL)}" placeholder="floating / manual" />` : ""}
                 </div>
                 <div class="control-row">
                     <select data-role="set-state" data-slot="${pin.slot}">
-                        <option value="ON">ON</option>
-                        <option value="OFF">OFF</option>
+                        <option value="ON">HIGH</option>
+                        <option value="OFF">LOW</option>
                         <option value="NEUTRAL">NEUTRAL</option>
                     </select>
                     <button class="pf-v6-c-button pf-m-secondary" data-role="send-pin" data-slot="${pin.slot}">Set ${pin.slot}</button>
@@ -309,12 +418,12 @@ document.addEventListener("DOMContentLoaded", function () {
         allCard.innerHTML = `
             <div class="pin-heading">
                 <div class="pin-title">Bulk Command</div>
-                <div class="pin-state">Set ALL pins at once</div>
+                <div class="pin-state">Set ALL GPIOs at once</div>
             </div>
             <div class="control-row">
                 <select id="set-all-state">
-                    <option value="ON">ON</option>
-                    <option value="OFF">OFF</option>
+                    <option value="ON">HIGH</option>
+                    <option value="OFF">LOW</option>
                     <option value="NEUTRAL">NEUTRAL</option>
                 </select>
                 <button id="set-all-button" class="pf-v6-c-button pf-m-primary">Send ALL</button>
@@ -327,6 +436,22 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         refs.pinConfigGrid.querySelectorAll("input[data-role='meaning']").forEach(input => {
+            input.addEventListener("change", onPinConfigChange);
+        });
+
+        refs.pinConfigGrid.querySelectorAll("select[data-role='mode']").forEach(sel => {
+            sel.addEventListener("change", onPinConfigChange);
+        });
+
+        refs.pinConfigGrid.querySelectorAll("select[data-role='switch-on-gpio']").forEach(sel => {
+            sel.addEventListener("change", onPinConfigChange);
+        });
+
+        refs.pinConfigGrid.querySelectorAll("select[data-role='switch-off-gpio']").forEach(sel => {
+            sel.addEventListener("change", onPinConfigChange);
+        });
+
+        refs.pinConfigGrid.querySelectorAll("input[data-role='switch-on-delay']").forEach(input => {
             input.addEventListener("change", onPinConfigChange);
         });
 
@@ -352,10 +477,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function stateClassName(state) {
-        if (state === "ON") {
+        if (state === "ON" || state === "HIGH") {
             return "state-on";
         }
-        if (state === "OFF") {
+        if (state === "OFF" || state === "LOW") {
             return "state-off";
         }
         if (state === "NEUTRAL") {
@@ -389,15 +514,15 @@ document.addEventListener("DOMContentLoaded", function () {
         return getSelected();
     }
 
-    function onAddDevice() {
+    async function onAddDevice() {
         const next = createProfile(profiles.length + 1);
         profiles.push(next);
         selectedId = next.id;
-        saveProfiles();
+        await saveProfiles();
         renderAll();
     }
 
-    function onDeleteDevice() {
+    async function onDeleteDevice() {
         if (profiles.length === 1) {
             alert("Keep at least one MCU profile.");
             return;
@@ -410,11 +535,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         profiles = profiles.filter(profile => profile.id !== selectedId);
         selectedId = profiles[0].id;
-        saveProfiles();
+        await saveProfiles();
         renderAll();
     }
 
-    function onSaveDevice() {
+    async function onSaveDevice() {
         const selected = getSelected();
         const name = refs.deviceName.value.trim();
         const ip = refs.deviceIp.value.trim();
@@ -436,12 +561,12 @@ document.addEventListener("DOMContentLoaded", function () {
         selected.name = name;
         selected.ip = ip;
         selected.port = port;
-        saveProfiles();
+        await saveProfiles();
         renderAll();
         setBanner("Saved profile for " + selected.name);
     }
 
-    function onPinConfigChange(event) {
+    async function onPinConfigChange(event) {
         const selected = getSelected();
         const slot = event.target.dataset.slot;
         const pin = selected.pins.find(p => p.slot === slot);
@@ -449,14 +574,28 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        if (event.target.dataset.role === "name") {
+        const role = event.target.dataset.role;
+        if (role === "name") {
             pin.name = event.target.value;
-        } else {
+        } else if (role === "mode") {
+            pin.mode = event.target.value;
+            await saveProfiles();
+            renderConfigPinCards();
+            renderOverviewCards();
+            return;
+        } else if (role === "switch-on-gpio") {
+            pin.switchOnGpio = event.target.value;
+        } else if (role === "switch-off-gpio") {
+            pin.switchOffGpio = event.target.value;
+        } else if (role === "switch-on-delay") {
+            pin.switchOnDelay = Math.max(0, Number(event.target.value) || 0);
+        } else if (role === "meaning") {
             const state = event.target.dataset.state;
             pin.meanings[state] = event.target.value;
         }
 
-        saveProfiles();
+        await saveProfiles();
+        renderOverviewCards();
     }
 
     async function onConnect(event) {
@@ -517,6 +656,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const pin = selected.pins.find(p => p.slot === slot);
             if (pin) {
                 pin.lastState = desiredState;
+                if (pin.mode === "switch" && desiredState === pin.switchOffGpio) {
+                    startSwitchCooldown(selected.id, slot, pin);
+                }
             }
             saveProfiles();
             renderAll();
@@ -650,6 +792,58 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             channel.send(command + "\r\n");
+        });
+    }
+
+    function startSwitchCooldown(profileId, slot, pin) {
+        const delay = (typeof pin.switchOnDelay === "number" && pin.switchOnDelay > 0) ? pin.switchOnDelay : 0;
+        if (delay <= 0) return;
+
+        if (!switchCooldowns[profileId]) switchCooldowns[profileId] = {};
+        const existing = switchCooldowns[profileId][slot];
+        if (existing) clearInterval(existing.intervalId);
+
+        const endsAt = Date.now() + delay * 1000;
+
+        const intervalId = setInterval(function () {
+            if (Date.now() >= endsAt) {
+                clearInterval(switchCooldowns[profileId][slot].intervalId);
+                delete switchCooldowns[profileId][slot];
+                applyCooldownToButton(profileId, slot);
+            } else {
+                applyCooldownToButton(profileId, slot);
+            }
+        }, 250);
+
+        switchCooldowns[profileId][slot] = { endsAt, intervalId };
+        applyCooldownToButton(profileId, slot);
+    }
+
+    function applyCooldownToButton(profileId, slot) {
+        const btn = document.querySelector(
+            "button[data-switch-role='on'][data-profile-id='" + profileId + "'][data-slot='" + slot + "']"
+        );
+        if (!btn) return;
+
+        const cooldown = switchCooldowns[profileId] && switchCooldowns[profileId][slot];
+        if (!cooldown || Date.now() >= cooldown.endsAt) {
+            btn.disabled = false;
+            btn.textContent = "ON";
+            btn.classList.remove("cooldown-active");
+            return;
+        }
+
+        const remaining = Math.ceil((cooldown.endsAt - Date.now()) / 1000);
+        btn.disabled = true;
+        btn.textContent = "ON (" + remaining + "s)";
+        btn.classList.add("cooldown-active");
+    }
+
+    function applyAllCooldowns() {
+        Object.keys(switchCooldowns).forEach(function (profileId) {
+            Object.keys(switchCooldowns[profileId]).forEach(function (slot) {
+                applyCooldownToButton(profileId, slot);
+            });
         });
     }
 

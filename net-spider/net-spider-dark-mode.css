@@ -50,10 +50,40 @@ body {
     overflow: visible !important;
 }
 
+#overview .pf-v6-c-page.no-masthead-sidebar .pf-v6-c-page__main {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+#overview .pf-v6-c-page.no-masthead-sidebar .pf-v6-c-page__main-section {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-inline-size: none !important;
+    margin-inline: 0 !important;
+}
+
 .layout-grid {
     display: grid;
     grid-template-columns: minmax(220px, 280px) minmax(420px, 1fr);
     gap: 1rem;
+    width: 100%;
+    max-width: none;
+}
+
+#config-view:not(.is-hidden) {
+    display: block;
+    width: 100%;
+}
+
+#config-view .layout-grid {
+    width: 100%;
+}
+
+#config-view .full-width-card {
+    width: 100%;
+    max-width: none !important;
+    margin-top: 1rem;
 }
 
 .pf-v6-c-card {
@@ -64,7 +94,16 @@ body {
 }
 
 .pf-v6-c-card__title {
+    background: rgba(10, 22, 34, 0.78);
     border-bottom: 1px solid rgba(158, 179, 195, 0.15);
+}
+
+.pf-v6-c-card__title-text,
+.pf-v6-c-card__title .pf-v6-c-card__title-text,
+.pf-v6-c-card__title .pf-v6-c-title,
+.pf-v6-c-card__title .pf-v6-c-title__text {
+    color: var(--text-main) !important;
+    font-weight: 600;
 }
 
 .banner-status {
@@ -96,7 +135,21 @@ body {
 }
 
 .is-hidden {
-    display: none;
+    display: none !important;
+}
+
+.net-spider-content {
+    width: calc(100vw - 2rem) !important;
+    min-width: calc(100vw - 2rem) !important;
+    max-width: none !important;
+    box-sizing: border-box;
+    padding: 1rem;
+}
+
+.net-spider-view {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
 }
 
 .mcu-overview-list {
@@ -223,6 +276,9 @@ select {
     border-radius: 8px;
     color: var(--text-main);
     padding: 0.45rem 0.55rem;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 input::placeholder {
@@ -258,11 +314,16 @@ input::placeholder {
     gap: 0.85rem;
 }
 
+#pin-config-grid {
+    grid-template-columns: repeat(auto-fit, minmax(26rem, 1fr));
+}
+
 .pin-card {
     border: 1px solid rgba(158, 179, 195, 0.3);
     border-radius: 10px;
     padding: 0.8rem;
     background: rgba(20, 35, 44, 0.8);
+    min-width: 0;
 }
 
 .pin-card.compact .pin-heading {
@@ -323,6 +384,20 @@ input::placeholder {
 
 .control-row select {
     flex: 1;
+}
+
+button.cooldown-active,
+button.cooldown-active:disabled {
+    cursor: not-allowed;
+    animation: cooldown-pulse 1s ease-in-out infinite;
+    color: #1a1a1a !important;
+    border-color: var(--warn) !important;
+    background-color: var(--warn) !important;
+}
+
+@keyframes cooldown-pulse {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 0.25; }
 }
 
 @media (max-width: 980px) {
