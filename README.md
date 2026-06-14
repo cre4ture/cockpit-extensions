@@ -23,6 +23,12 @@ After this, refresh the cockpit page in your browser and it should already have 
 
 # Screenshots
 
+## net-spider MCU GPIO Console
+
+![net-spider MCU GPIO Console](screenshots/net-spider-gpio-console.png)
+
+## Other extensions
+
 ![image](https://github.com/user-attachments/assets/8e5312cc-052c-48c1-88ad-08ccb1c69bae)
 
 
